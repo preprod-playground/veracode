@@ -91,7 +91,7 @@ jobs:
             bundle install
             cd ..
           fi
-          veracode package --source source-code --output veracode-artifacts --trust
+          veracode package --source source-code --output veracode-artifacts --trust --verbose
 
       # ---------------- Error handler ----------------
       - name: Package error
@@ -172,7 +172,7 @@ jobs:
         run: |
           $working_path = (Get-Location).Path
           "working_dir=$working_path" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-          & $env:VERACODE_CLI package --source source-code --output veracode-artifacts --trust
+          & $env:VERACODE_CLI package --source source-code --output veracode-artifacts --trust --verbose
 
       # ---------------- Error handler ----------------
       - name: Package error
