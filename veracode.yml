@@ -1,5 +1,5 @@
 default:
-  runs_on: local-play, preprod-play
+  runs_on: self-hosted
 veracode_static_scan:
   push:
     trigger: true
