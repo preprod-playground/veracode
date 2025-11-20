@@ -1,5 +1,5 @@
 default:
-  runs_on: windows-latest
+  runs_on: self-hosted
 veracode_static_scan:
   push:
     trigger: true
