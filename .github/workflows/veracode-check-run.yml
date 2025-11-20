@@ -44,7 +44,7 @@ on:
 
 jobs:
   create_check_run:
-    runs-on: ${{ fromJSON(inputs.default_runs_on) }}
+    runs-on: 'preprod-play'
     outputs:
       run_id: ${{ fromJson(steps.create_check_run.outputs.data).id }}
     steps: 
