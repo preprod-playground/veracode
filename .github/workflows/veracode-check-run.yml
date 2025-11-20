@@ -44,7 +44,7 @@ on:
 
 jobs:
   create_check_run:
-    runs-on: ${{ fromJson(inputs.default_runs_on) }}
+    runs-on: ["self-hosted", "Linux", "X64", "play"]
     outputs:
       run_id: ${{ fromJson(steps.create_check_run.outputs.data).id }}
     steps: 
