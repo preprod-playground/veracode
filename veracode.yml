@@ -1,5 +1,5 @@
 default:
-  runs_on: "self-hosted", "play"
+  runs_on: "self-hosted, play"
 veracode_static_scan:
   push:
     trigger: true
