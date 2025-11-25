@@ -34,12 +34,10 @@ on:
         type: string
 
 jobs:
-  build-linux:
+  build:
     runs-on: ${{ fromJSON(inputs.build_runs_on) }}
     container:
       image: ${{ inputs.build_packager_image }}
-    name: Build on Linux
-    if: contains(inputs.build_runs_on, 'Linux')
     env:
       VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
       VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
@@ -58,6 +56,7 @@ jobs:
 
       - name: Package the application
         id: application_package_linux
+        if: contains(runner.os, 'Linux')
         shell: bash
         run: |
           if [[ ! -z "${{ inputs.build_predependency_command }}" ]]; then
@@ -93,41 +92,9 @@ jobs:
           fi
           veracode package --source source-code --output veracode-artifacts --trust --verbose
 
-      # ---------------- Error handler ----------------
-      - name: Package error
-        if: failure()
-        run: |
-          echo "::error::Veracode static scan faced a problem. Please contact your Veracode administrator for more information."
-
-      # ---------------- Upload artifact ----------------
-      - uses: actions/upload-artifact@v4
-        with:
-          name: veracode-artifact
-          path: "${{ steps.application_package_linux.outputs.working_dir || steps.application_package_windows.outputs.working_dir }}/veracode-artifacts/*"
-          if-no-files-found: error
-
-  build-windows:
-    runs-on: ${{ fromJSON(inputs.build_runs_on) }}
-    name: Build on Windows
-    if: contains(inputs.build_runs_on, 'Windows')
-    env:
-      VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
-      VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          path: 'veracode-helper'
-
-      - uses: actions/checkout@v4
-        with:
-          repository: ${{ inputs.repository }}
-          ref: ${{ inputs.ref }}
-          token: ${{ inputs.token }}
-          path: 'source-code'
-
       - name: Install Veracode CLI
         shell: pwsh
+        if: contains(runner.os, 'Windows')
         run: |
           $cliFile = Get-ChildItem -Path "./veracode-helper/helper/cli" -Filter *.ps1 | Select-Object -First 1
           Write-Host "Found CLI install script: $cliFile"
@@ -139,6 +106,7 @@ jobs:
 
       - name: Ensure MSBuild available
         shell: pwsh
+        if: contains(runner.os, 'Windows')
         run: |
           try {
             $msbuildAlreadyExists = Get-Command msbuild.exe -ErrorAction SilentlyContinue
@@ -169,6 +137,7 @@ jobs:
       - name: Run Veracode CLI Package
         id: application_package_windows
         shell: pwsh
+        if: contains(runner.os, 'Windows')
         run: |
           $working_path = (Get-Location).Path
           "working_dir=$working_path" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
@@ -184,11 +153,11 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: veracode-artifact
-          path: "${{ steps.application_package_windows.outputs.working_dir || steps.application_package_windows.outputs.working_dir }}/veracode-artifacts/*"
+          path: "${{ steps.application_package_linux.outputs.working_dir || steps.application_package_windows.outputs.working_dir }}/veracode-artifacts/*"
           if-no-files-found: error
 
   cleanup:
-    needs: [build-linux, build-windows]
+    needs: build
     if: always()
     uses: ./.github/workflows/veracode-clean-up.yml
     with:
