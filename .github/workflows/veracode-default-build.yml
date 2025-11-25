@@ -32,9 +32,6 @@ on:
       default_runs_on:
         required: true
         type: string
-      os:
-        required: true
-        type: string
 
 jobs:
   build-linux:
@@ -42,7 +39,7 @@ jobs:
     container:
       image: ${{ inputs.build_packager_image }}
     name: Build on Linux
-    if: contains(inputs.os, 'Linux')
+    if: contains(inputs.build_runs_on, 'Linux')
     env:
       VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
       VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
@@ -112,7 +109,7 @@ jobs:
   build-windows:
     runs-on: ${{ fromJSON(inputs.build_runs_on) }}
     name: Build on Windows
-    if: contains(inputs.os, 'Windows')
+    if: contains(inputs.build_runs_on, 'Windows')
     env:
       VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
       VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'

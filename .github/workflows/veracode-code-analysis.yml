@@ -95,7 +95,7 @@ jobs:
       ruby_version: ${{ github.event.client_payload.user_config.ruby_version }}
       bundle_version: ${{ github.event.client_payload.user_config.bundle_version }}
       default_runs_on: ${{ github.event.client_payload.user_config.default_runs_on }}
-      os: ${{ runner.os }}
+      # os: ${{ runner.os }}
 
   pipeline_scan:
     # needs the build step before this job will start running
