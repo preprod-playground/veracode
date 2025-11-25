@@ -34,12 +34,12 @@ on:
         type: string
 
 jobs:
-  build-ubuntu:
+  build-linux:
     runs-on: ${{ fromJSON(inputs.build_runs_on) }}
     container:
       image: ${{ inputs.build_packager_image }}
-    name: Build on Ubuntu
-    if: contains(inputs.build_runs_on, 'ubuntu')
+    name: Build on Linux
+    if: contains(runner.os, 'Linux')
     env:
       VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
       VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
@@ -109,7 +109,7 @@ jobs:
   build-windows:
     runs-on: ${{ fromJSON(inputs.build_runs_on) }}
     name: Build on Windows
-    if: contains(inputs.build_runs_on, 'windows')
+    if: contains(runner.os, 'Windows')
     env:
       VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
       VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
@@ -188,7 +188,7 @@ jobs:
           if-no-files-found: error
 
   cleanup:
-    needs: [build-ubuntu, build-windows]
+    needs: [build-linux, build-windows]
     if: always()
     uses: ./.github/workflows/veracode-clean-up.yml
     with:
