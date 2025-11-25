@@ -200,7 +200,7 @@ jobs:
           if-no-files-found: error
 
   cleanup:
-    needs: build
+    needs: [build-prepare, build-linux, build-windows]
     if: always()
     uses: ./.github/workflows/veracode-clean-up.yml
     with:
