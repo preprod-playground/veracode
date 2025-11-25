@@ -1,5 +1,5 @@
 default:
-  runs_on: "preprod-play"
+  runs_on: "windows-latest"
 veracode_static_scan:
   push:
     trigger: true
