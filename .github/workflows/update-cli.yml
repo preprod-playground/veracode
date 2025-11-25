@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 jobs:
   update-veracode-cli:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     continue-on-error: true
     permissions:
       contents: write
