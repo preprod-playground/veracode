@@ -77,7 +77,7 @@ jobs:
           echo "Files for matrix: $files"
           files=$(echo $files | jq -c .)  # Compact the JSON array to a single line
           echo "matrix_files=$files" >> $GITHUB_OUTPUT
-        shell: bash
+        shell: cmd
 
   pipeline_scan:
     runs-on: ${{ fromJson(inputs.default_runs_on) }}
@@ -169,7 +169,7 @@ jobs:
     steps:
      - name: Update check
        id: update_check_status
-       shell: bash
+       shell: cmd
        env:
         BREAK_BUILD_ON_ERROR: ${{ inputs.break_build_on_error }}
         BREAK_BUILD_ON_POLICY: ${{ inputs.break_build_policy_findings }}

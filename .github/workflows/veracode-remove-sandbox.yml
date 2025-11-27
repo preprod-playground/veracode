@@ -17,7 +17,7 @@ jobs:
     steps:
     - name: Create metadata
       id: create_metadata_json
-      shell: bash
+      shell: cmd
       run: |
         echo '{
           "check_run_type": "${{ github.event.client_payload.event_type }}",

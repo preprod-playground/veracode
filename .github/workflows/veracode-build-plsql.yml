@@ -27,7 +27,7 @@ jobs:
         token: ${{ inputs.token }}
 
     - name: Create zip archive
-      shell: bash
+      shell: cmd
       run: tar -a -cf veracode.tar --exclude=veracode.tar --exclude=.git/** --exclude=bin/** --exclude=e2e/** --exclude=tests/** --exclude=node_modules/** --exclude=*.{pyd,mwb,exe,dll,bin,png,xml,bat,g2p,gp4,wav,jpg,svg,sfx,prx,sb,nrm,config,ini,pdf,dat,docx,whl,so,xlsm} --exclude=*_*arm64 --exclude=*_*armhf --exclude=*_*x64 .
 
     - uses: actions/upload-artifact@v4

@@ -41,7 +41,7 @@ jobs:
     steps:
       - name: Identify the runner OS
         id: identify_runner_os
-        shell: bash
+        shell: cmd
         run: echo "runner_os=${{ runner.os }}" >> $GITHUB_OUTPUT
 
   build-linux:
@@ -69,7 +69,7 @@ jobs:
 
       - name: Package the application
         id: application_package_linux
-        shell: bash
+        shell: cmd
         run: |
           if [[ ! -z "${{ inputs.build_predependency_command }}" ]]; then
             echo "Executing Pre-Build Dependency.."
