@@ -163,17 +163,36 @@ jobs:
             $cliFile = $zipFiles | Sort-Object { [version]($_.Name -replace '.*?(\d+\.\d+\.\d+).*','$1') } -Descending | Select-Object -First 1
             Write-Host "Found CLI ZIP file: $($cliFile.Name)"
             
-            # Extract the ZIP file
+            # Extract the ZIP file to a clean directory
             $extractPath = "./cli-extracted"
+            if (Test-Path $extractPath) {
+              Remove-Item -Path $extractPath -Recurse -Force
+            }
             Expand-Archive -Path $cliFile.FullName -DestinationPath $extractPath -Force
             
-            # Find the veracode.exe in the extracted folder
-            $veracodeExe = Get-ChildItem -Path $extractPath -Name "veracode.exe" -Recurse | Select-Object -First 1
-            $veracodeDir = Split-Path -Path (Join-Path $extractPath $veracodeExe) -Parent
-            $veracodeFullPath = Join-Path $veracodeDir "veracode.exe"
+            # Debug: List contents of extracted directory
+            Write-Host "Contents of extracted directory:"
+            Get-ChildItem -Path $extractPath -Recurse | ForEach-Object { Write-Host "  $($_.FullName)" }
             
-            Write-Host "Veracode CLI path: $veracodeFullPath"
-            echo "VERACODE_CLI=$veracodeFullPath" | Out-File -FilePath $env:GITHUB_ENV -Append
+            # Find the veracode.exe in the extracted folder
+            $veracodeExeFiles = Get-ChildItem -Path $extractPath -Name "veracode.exe" -Recurse -ErrorAction SilentlyContinue
+            if ($veracodeExeFiles) {
+              $veracodeExeRelativePath = $veracodeExeFiles | Select-Object -First 1
+              $veracodeFullPath = Join-Path (Get-Location).Path "$extractPath/$veracodeExeRelativePath"
+              $veracodeFullPath = [System.IO.Path]::GetFullPath($veracodeFullPath)
+              
+              # Verify the executable exists
+              if (Test-Path $veracodeFullPath) {
+                Write-Host "Veracode CLI path: $veracodeFullPath"
+                echo "VERACODE_CLI=$veracodeFullPath" | Out-File -FilePath $env:GITHUB_ENV -Append
+              } else {
+                Write-Error "Veracode executable not found at expected path: $veracodeFullPath"
+                exit 1
+              }
+            } else {
+              Write-Error "Could not find veracode.exe in the extracted ZIP archive"
+              exit 1
+            }
           } else {
             # Fallback to PS1 files (legacy format)
             $ps1Files = Get-ChildItem -Filter "*.ps1" -ErrorAction SilentlyContinue
