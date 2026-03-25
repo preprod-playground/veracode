@@ -155,21 +155,44 @@ jobs:
           $working_path = (Get-Location).Path
           cd "veracode-helper/helper/cli"
           
-          # Get the latest CLI ZIP file using version sort
-          $cliFile = Get-ChildItem -Filter "*.zip" | Sort-Object { [version]($_.Name -replace '.*?(\d+\.\d+\.\d+).*','$1') } -Descending | Select-Object -First 1
-          Write-Host "Found CLI ZIP file: $($cliFile.Name)"
+          # Try to find ZIP files first (new format)
+          $zipFiles = Get-ChildItem -Filter "*.zip" -ErrorAction SilentlyContinue
           
-          # Extract the ZIP file
-          $extractPath = "./cli-extracted"
-          Expand-Archive -Path $cliFile.FullName -DestinationPath $extractPath -Force
-          
-          # Find the veracode.exe in the extracted folder
-          $veracodeExe = Get-ChildItem -Path $extractPath -Name "veracode.exe" -Recurse | Select-Object -First 1
-          $veracodeDir = Split-Path -Path (Join-Path $extractPath $veracodeExe) -Parent
-          $veracodeFullPath = Join-Path $veracodeDir "veracode.exe"
-          
-          Write-Host "Veracode CLI path: $veracodeFullPath"
-          echo "VERACODE_CLI=$veracodeFullPath" | Out-File -FilePath $env:GITHUB_ENV -Append
+          if ($zipFiles) {
+            # Use ZIP files (new format)
+            $cliFile = $zipFiles | Sort-Object { [version]($_.Name -replace '.*?(\d+\.\d+\.\d+).*','$1') } -Descending | Select-Object -First 1
+            Write-Host "Found CLI ZIP file: $($cliFile.Name)"
+            
+            # Extract the ZIP file
+            $extractPath = "./cli-extracted"
+            Expand-Archive -Path $cliFile.FullName -DestinationPath $extractPath -Force
+            
+            # Find the veracode.exe in the extracted folder
+            $veracodeExe = Get-ChildItem -Path $extractPath -Name "veracode.exe" -Recurse | Select-Object -First 1
+            $veracodeDir = Split-Path -Path (Join-Path $extractPath $veracodeExe) -Parent
+            $veracodeFullPath = Join-Path $veracodeDir "veracode.exe"
+            
+            Write-Host "Veracode CLI path: $veracodeFullPath"
+            echo "VERACODE_CLI=$veracodeFullPath" | Out-File -FilePath $env:GITHUB_ENV -Append
+          } else {
+            # Fallback to PS1 files (legacy format)
+            $ps1Files = Get-ChildItem -Filter "*.ps1" -ErrorAction SilentlyContinue
+            
+            if ($ps1Files) {
+              $cliFile = $ps1Files | Sort-Object { [version]($_.Name -replace '.*?(\d+\.\d+\.\d+).*','$1') } -Descending | Select-Object -First 1
+              Write-Host "Found legacy CLI PS1 script: $($cliFile.Name)"
+              Write-Host "Installing CLI using PowerShell script..."
+              
+              Set-ExecutionPolicy Bypass -Scope Process -Force
+              $ProgressPreference = "silentlyContinue"
+              & $cliFile.FullName
+              $VERACODE_CLI = Get-Command veracode | Select-Object -ExpandProperty Definition
+              echo "VERACODE_CLI=$VERACODE_CLI" | Out-File -FilePath $env:GITHUB_ENV -Append
+            } else {
+              Write-Error "No Veracode CLI files found (neither ZIP nor PS1). Please ensure the update-cli workflow has run successfully."
+              exit 1
+            }
+          }
           
           cd $working_path
 
