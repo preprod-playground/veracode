@@ -1,7 +1,7 @@
 name: Update the Veracode CLI
 on:
   schedule:
-      - cron: '*/10 * * * *'
+      - cron: '*/30 * * * *'
   workflow_dispatch:
 jobs:
   update-veracode-cli:
