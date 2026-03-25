@@ -156,7 +156,7 @@ jobs:
           cd "veracode-helper/helper/cli"
           
           # Try to find ZIP files first (new format)
-          $zipFiles = Get-ChildItem -Filter "*.zip" -ErrorAction SilentlyContinue
+          $zipFiles = Get-ChildItem -Filter "*_windows_x86.zip" -ErrorAction SilentlyContinue
           
           if ($zipFiles) {
             # Use ZIP files (new format)
@@ -186,8 +186,10 @@ jobs:
               Set-ExecutionPolicy Bypass -Scope Process -Force
               $ProgressPreference = "silentlyContinue"
               & $cliFile.FullName
-              $VERACODE_CLI = Get-Command veracode | Select-Object -ExpandProperty Definition
-              echo "VERACODE_CLI=$VERACODE_CLI" | Out-File -FilePath $env:GITHUB_ENV -Append
+              
+              # PS1 script installs CLI globally, so use 'veracode' command directly
+              echo "VERACODE_CLI=veracode" | Out-File -FilePath $env:GITHUB_ENV -Append
+              Write-Host "CLI installed globally, using 'veracode' command"
             } else {
               Write-Error "No Veracode CLI files found (neither ZIP nor PS1). Please ensure the update-cli workflow has run successfully."
               exit 1
