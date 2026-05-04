@@ -61,8 +61,16 @@ jobs:
 
     - run: flutter doctor
 
-    - name: Build Flutter App
-      run: flutter build apk --debug
+    - name: Build all Flutter apps
+      run: |
+        find . -name "pubspec.yaml" | while read file; do
+          dir=$(dirname "$file")
+    
+          if grep -q "flutter:" "$file"; then
+            echo "Building Flutter app in $dir"
+            (cd "$dir" && flutter pub get && flutter build apk --debug)
+          fi
+        done
 
     - uses: actions/upload-artifact@v4
       with:
