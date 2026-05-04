@@ -74,5 +74,6 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: veracode-artifact
-        path: build/app/outputs/flutter-apk
+        name: veracode-artifacts
+        path: |
+          **/build/app/outputs/flutter-apk/*.apk
