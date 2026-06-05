@@ -256,7 +256,8 @@ jobs:
             "package",
             "--source", "source-code",
             "--output", "veracode-artifacts",
-            "--trust"
+            "--trust",
+            "--verbose"
           )
 
           if ("${{ inputs.debug }}" -eq "true") {
