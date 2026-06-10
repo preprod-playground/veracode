@@ -5,6 +5,9 @@ on:
       repository:
         required: true
         type: string
+      repository_name:
+        required: true
+        type: string
       ref:
         required: true
         type: string
@@ -125,7 +128,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: veracode-artifact
-          path: "${{ steps.application_package_linux.outputs.working_dir }}/veracode-artifacts/*"
+          path: "${{ steps.application_package_linux.outputs.working_dir }}/veracode-artifacts/${{ inputs.repository_name }}*"
           if-no-files-found: error
 
   build-windows:
@@ -277,5 +280,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: veracode-artifact
-          path: "${{ steps.application_package_windows.outputs.working_dir }}/veracode-artifacts/*"
+          path: "${{ steps.application_package_windows.outputs.working_dir }}/veracode-artifacts/${{ inputs.repository_name }}*"
           if-no-files-found: error
