@@ -6,6 +6,9 @@ on:
       repository:
         required: true
         type: string
+      repository_name:
+        required: true
+        type: string
       ref:
         required: true
         type: string
@@ -40,6 +43,7 @@ jobs:
     uses: ./.github/workflows/veracode-default-build.yml
     with:
       repository: ${{ inputs.repository }}
+      repository_name: ${{ inputs.repository_name }}
       ref: ${{ inputs.ref }}
       token: ${{ inputs.token }}
       build_runs_on: ${{ inputs.build_runs_on }}
